@@ -461,6 +461,7 @@ case "${1:-}" in
         ;;
     all)
         step_prep
+        step_base
         step_dev
         step_xorg
         step_gui mate xfce       
