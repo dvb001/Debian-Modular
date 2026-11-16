@@ -18,7 +18,10 @@ jobs:
   build-iso:
     runs-on: ubuntu-latest
     timeout-minutes: 120 # 编译系统耗时较久，建议设置长一点的超时时间
-
+    container:
+      image: debian:bookworm       # 或者使用你指定的镜像，如 ubuntu:latest
+      options: --privileged        # 开启特权模式，赋予容器类似宿主机的内核操作权限
+      
     steps:
       # 步骤 1：检出仓库代码
       - name: Checkout code
