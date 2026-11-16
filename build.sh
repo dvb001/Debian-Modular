@@ -229,7 +229,7 @@ step_xorg() {
     $MOUNT_OVERLAY_CMD \
         -o lowerdir="$DEV_STAGE:$BASE_CHROOT",upperdir="$XORG_STAGE",workdir="$XORG_WORK" \
         "$XORG_CHROOT"
-
+	mount_chroot "$XORG_CHROOT"
     echo "[*] 在 XORG Chroot 中安装 xorg 及相关软件..."
     chroot "$XORG_CHROOT" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
