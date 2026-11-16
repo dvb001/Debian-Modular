@@ -12,8 +12,8 @@ sudo ./build.sh base
 sudo ./build.sh dev
 # 生成桌面基础模块
 sudo ./build.sh xorg
-# 生成桌面（可以生成多个不同桌面）
-sudo ./build.sh mate
+# 生成桌面
+sudo ./build.sh gui
 # 制作 iso
 sudo ./build.sh boot
 ```
