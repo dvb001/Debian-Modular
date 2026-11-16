@@ -7,6 +7,8 @@
 #   - 003-devtools.squashfs: Python / Go / Rust / 工具链 + 完整 Apt 记录 (增量)
 # ==========================================================
 
+MOUNT_OVERLAY_CMD="fuse-overlayfs"
+
 set -e
 
 if [ "$EUID" -ne 0 ]; then
@@ -143,7 +145,7 @@ step_dev() {
 
     echo "[*] mountting overlay systems..."
     # 使用 overlay 挂载
-    mount -t overlay overlay \
+    $MOUNT_OVERLAY_CMD \
         -o lowerdir="$BASE_CHROOT",upperdir="$DEV_STAGE",workdir="$DEV_WORK" \
         "$DEV_CHROOT"
     mount_chroot "$DEV_CHROOT"
@@ -224,7 +226,7 @@ step_xorg() {
     mkdir -p "$XORG_CHROOT" "$XORG_STAGE" "$XORG_WORK"
 
     # 使用 overlay 挂载
-    mount -t overlay overlay \
+    $MOUNT_OVERLAY_CMD \
         -o lowerdir="$DEV_STAGE:$BASE_CHROOT",upperdir="$XORG_STAGE",workdir="$XORG_WORK" \
         "$XORG_CHROOT"
 
@@ -316,7 +318,7 @@ step_gui() {
     mkdir -p "$multi_chroot" "$multi_stage" "$multi_work"
 
     # 使用 overlay 挂载
-    mount -t overlay overlay \
+    $MOUNT_OVERLAY_CMD \
         -o lowerdir="$XORG_STAGE:$DEV_STAGE:$BASE_CHROOT",upperdir="$multi_stage",workdir="$multi_work" \
         "$multi_chroot"
     mount_chroot "$multi_chroot"
