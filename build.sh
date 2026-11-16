@@ -2,9 +2,10 @@
 # ==========================================================
 # Debian 12 多模块 Live 系统构建脚本 (带 Apt 记录继承与排重机制)
 # 模块结构:
-#   - 001-base.squashfs    : 基础系统 + 核心内核 + 用户(debian)
-#   - 002-mate.squashfs    : MATE 桌面 + LightDM + 完整 Apt 记录 (增量)
-#   - 003-devtools.squashfs: Python / Go / Rust / 工具链 + 完整 Apt 记录 (增量)
+#   - 001-base.squashfs			: 基础系统 + 核心内核 + 用户(debian)
+#   - 002-devtools.squashfs		: Python / Go / Rust / 工具链
+#   - 003-xorg.squashfs			: 桌面基础包 xserver / lightdm 桌面共用包等
+#   - 004-gui.squashfs			: 桌面 Xfce mate 等可选
 # ==========================================================
 
 # 默认桌面
