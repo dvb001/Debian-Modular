@@ -7,6 +7,11 @@
 #   - 003-devtools.squashfs: Python / Go / Rust / 工具链 + 完整 Apt 记录 (增量)
 # ==========================================================
 
+# 默认桌面
+GUI_DESKTOPS="${GUI_DESKTOPS:-mate xfce}"
+# 默认版本
+DEBIAN_VERSION="${DEBIAN_VERSION:-bookworm}"
+# overlay 挂载命令
 MOUNT_OVERLAY_CMD="fuse-overlayfs"
 
 set -e
@@ -40,7 +45,7 @@ GUI_WORK="$GUI_ROOT/work"
 OTHER_WORK="$TOOLS_ROOT/work"
 
 ISO_DIR="$WORK_DIR/iso"
-OUTPUT_ISO="$WORK_DIR/debian-12-modular.iso"
+OUTPUT_ISO="$WORK_DIR/debian-$DEBIAN_VERSION-modular.iso"
 
 mount_chroot() {
     mount -t proc proc "$1/proc"
@@ -88,12 +93,12 @@ step_base() {
     mkdir -p "$BASE_CHROOT" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/isolinux"
 
     if [ ! -f "$BASE_CHROOT/bin/bash" ]; then
-        debootstrap --arch=amd64 bookworm "$BASE_CHROOT" https://mirrors.tuna.tsinghua.edu.cn/debian/
+        debootstrap --arch=amd64 "$DEBIAN_VERSION" "$BASE_CHROOT" https://mirrors.tuna.tsinghua.edu.cn/debian/
     fi
 
     cat <<EOF > "$BASE_CHROOT/etc/apt/sources.list"
-deb http://mirrors.tuna.tsinghua.edu.cn/debian bookworm main contrib non-free non-free-firmware
-deb http://mirrors.tuna.tsinghua.edu.cn/debian-security bookworm-security main contrib non-free non-free-firmware
+deb http://mirrors.tuna.tsinghua.edu.cn/debian $DEBIAN_VERSION main contrib non-free non-free-firmware
+deb http://mirrors.tuna.tsinghua.edu.cn/debian-security $DEBIAN_VERSION-security main contrib non-free non-free-firmware
 EOF
 
     echo "[*] 在 Base 中安装内核、基础服务并创建用户 debian..."
@@ -454,7 +459,7 @@ case "${1:-}" in
         step_dev
         ;;
     gui)
-        step_gui mate xfce
+        step_gui $GUI_DESKTOPS
         ;;
     boot)
         step_boot
@@ -464,11 +469,11 @@ case "${1:-}" in
         step_base
         step_dev
         step_xorg
-        step_gui mate xfce       
+        step_gui $GUI_DESKTOPS
         step_boot
         ;;
     *)
-        echo "用法: $0 {prep|xorg|dev|(mate|kde|xfce|lxqt|lxde|cinnamon)|boot|all}"
+        echo "用法: $0 {prep|xorg|dev|gui|boot|all}"
         exit 1
         ;;
 esac
