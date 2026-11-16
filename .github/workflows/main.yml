@@ -31,6 +31,9 @@ jobs:
       - name: Make build script executable
         run: chmod +x ./build.sh
 
+      - name: prepare
+        run: apt-get update && apt-get install -y sudo
+
       # 步骤 3：运行构建脚本
       # 核心解决交互问题：通过 `echo "y"` 自动回应清理历史记录的 `read -p` 提示
       - name: Run ./build.sh with automatic input
