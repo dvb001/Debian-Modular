@@ -36,18 +36,28 @@ jobs:
 
       # 步骤 3：运行构建脚本
       # 核心解决交互问题：通过 `echo "y"` 自动回应清理历史记录的 `read -p` 提示
-      - name: Run ./build.sh with automatic input
+      - name: install basic packages
         run: |
-          echo "=========================================="
-          echo "开始构建目标: ${{ inputs.build_target || 'all' }}"
-          echo "=========================================="
-          
-          # 使用 echo "y" 通过管道自动回答脚本中的 [y/N] 提示
           sudo ./build.sh prep
+          
+      - name: build base
+        run: |
           sudo ./build.sh base
+          
+      - name: build devtools
+        run: |
           echo 'y' | sudo ./build.sh dev
+
+      - name: build xorg
+        run: |
           echo 'y' | sudo ./build.sh xorg
+
+      - name: build gui
+        run: |
           echo 'y' | sudo ./build.sh gui
+
+      - name: build iso
+        run: |
           sudo ./build.sh boot
 
       # 步骤 4：检查并整理输出产物
