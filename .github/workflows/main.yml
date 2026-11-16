@@ -43,7 +43,12 @@ jobs:
           echo "=========================================="
           
           # 使用 echo "y" 通过管道自动回答脚本中的 [y/N] 提示
-          echo "y" | sudo ./build.sh ${{ inputs.build_target || 'all' }}
+          sudo ./build.sh prep
+          sudo ./build.sh base
+          echo 'y' | sudo ./build.sh dev
+          echo 'y' | sudo ./build.sh xorg
+          echo 'y' | sudo ./build.sh gui
+          sudo ./build.sh boot
 
       # 步骤 4：检查并整理输出产物
       - name: Prepare Artifacts
