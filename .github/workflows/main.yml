@@ -11,8 +11,8 @@ on:
         type: string
 
   # 每次推送代码到 main 分支时也可自动触发（不需要可自行注释掉）
-  push:
-    branches: [ "main" ]
+  #push:
+  #  branches: [ "main" ]
 
 jobs:
   build-iso:
