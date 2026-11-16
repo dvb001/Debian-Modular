@@ -1,0 +1,63 @@
+name: Build Debian 12 Modular Live ISO
+
+on:
+  # 允许在 GitHub 网页端手动触发，并可自由选择构建目标
+  workflow_dispatch:
+    inputs:
+      build_target:
+        description: '选择构建阶段 (all, prep, base, dev, xorg, gui, boot)'
+        required: true
+        default: 'all'
+        type: string
+
+  # 每次推送代码到 main 分支时也可自动触发（不需要可自行注释掉）
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120 # 编译系统耗时较久，建议设置长一点的超时时间
+
+    steps:
+      # 步骤 1：检出仓库代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 步骤 2：赋予 build.sh 执行权限
+      - name: Make build script executable
+        run: chmod +x ./build.sh
+
+      # 步骤 3：运行构建脚本
+      # 核心解决交互问题：通过 `echo "y"` 自动回应清理历史记录的 `read -p` 提示
+      - name: Run ./build.sh with automatic input
+        run: |
+          echo "=========================================="
+          echo "开始构建目标: ${{ inputs.build_target || 'all' }}"
+          echo "=========================================="
+          
+          # 使用 echo "y" 通过管道自动回答脚本中的 [y/N] 提示
+          echo "y" | sudo ./build.sh ${{ inputs.build_target || 'all' }}
+
+      # 步骤 4：检查并整理输出产物
+      - name: Prepare Artifacts
+        run: |
+          mkdir -p iso_output
+          # 将生成的 ISO 镜像复制到统一的产物目录
+          if [ -f "target/debian-12-modular.iso" ]; then
+            cp -v target/debian-12-modular.iso iso_output/
+          fi
+          
+          # 如果还需要把各个 .squashfs 模块也打包上传，可以一并拷贝
+          if [ -d "target/iso/live" ]; then
+            mkdir -p iso_output/live
+            cp -v target/iso/live/*.squashfs iso_output/live/
+          fi
+
+      # 步骤 5：上传构建完成的 ISO 镜像及模块到 GitHub
+      - name: Upload ISO Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-12-modular-iso
+          path: iso_output/
+          retention-days: 7
