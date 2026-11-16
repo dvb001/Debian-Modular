@@ -68,12 +68,6 @@ jobs:
           if [ -f "target/debian-12-modular.iso" ]; then
             cp -v target/debian-12-modular.iso iso_output/
           fi
-          
-          # 如果还需要把各个 .squashfs 模块也打包上传，可以一并拷贝
-          if [ -d "target/iso/live" ]; then
-            mkdir -p iso_output/live
-            cp -v target/iso/live/*.squashfs iso_output/live/
-          fi
 
       # 步骤 5：上传构建完成的 ISO 镜像及模块到 GitHub
       - name: Upload ISO Artifact
