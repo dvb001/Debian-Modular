@@ -76,3 +76,15 @@ jobs:
           name: debian-12-modular-iso
           path: iso_output/
           retention-days: 7
+
+      # 步骤：上传文件到 GitHub Release
+      - name: Release and Upload ISO
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/v') # 通常通过打标签（如 v1.0.0）来触发 Release
+        with:
+          files: |
+            target/debian-12-modular.iso
+            target/iso/live/*.squashfs
+          # body: "这是自动构建的 Debian 模块化 Live 系统。"
+          # draft: false
+          # prerelease: false
