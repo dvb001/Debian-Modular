@@ -125,13 +125,13 @@ EOF
         echo "[*] Patch base..."
         cp -R ./data/patch/* "$BASE_CHROOT/"
         chroot "$BASE_CHROOT" /bin/bash -c "
-			KERNEL_VERSION=$(ls \"$BASE_CHROOT/lib/modules\" 2>/dev/null | head -n 1 | tr -d '[:space:]')
-			if [ -z "$KERNEL_VERSION" ]; then
+			KERNEL_VERSION=$(ls /lib/modules 2>/dev/null | head -n 1 | tr -d '[:space:]')
+			if [ -z \"$KERNEL_VERSION\" ]; then
 			    KERNEL_VERSION=\"all\"
 			fi	
 			echo \"[*] 检测到的目标内核版本: $KERNEL_VERSION\"		
 			# 3. 必须在 chroot 环境中执行，并用双引号包裹变量以防被 shell 拆解
-			if [ -f '/usr/bin/update-initramfs.orig.initramfs-tools' ]; then
+			if [ -f '/usr/sbin/update-initramfs.orig.initramfs-tools' ]; then
 			    update-initramfs.orig.initramfs-tools -u -k $KERNEL_VERSION
 			else
 			    update-initramfs -u -k $KERNEL_VERSION
