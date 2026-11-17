@@ -81,9 +81,7 @@ jobs:
         run: |
           mkdir -p iso_output
           # 将生成的 ISO 镜像复制到统一的产物目录
-          if [ -f "target/debian-*-modular.iso" ]; then
-            cp -v target/debian-*-modular.iso iso_output/
-          fi
+          cp -v target/*.iso iso_output/
 
       # 步骤 5：上传构建完成的 ISO 镜像及模块到 GitHub
       - name: Upload ISO Artifact
