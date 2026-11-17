@@ -31,6 +31,7 @@ case "$TARGET_VERSION" in
         SECURITY_URL="http://security.ubuntu.com/ubuntu/"
         COMPONENTS="main restricted universe multiverse"
 		KERNEL_PKG="linux-image-generic"
+		HEADERS_PKG="linux-headers-generic"
         ;;
         
     # Debian 默认及其他代号处理
@@ -40,6 +41,7 @@ case "$TARGET_VERSION" in
         SECURITY_URL="http://deb.debian.org/debian-security"
         COMPONENTS="main contrib non-free non-free-firmware"
 		KERNEL_PKG="linux-image-amd64"
+		HEADERS_PKG="linux-headers-amd64"
         ;;
 esac
 
@@ -199,48 +201,55 @@ step_dev() {
     echo "[+] 检测到目标内核版本: $KERNEL_VERSION"
 
     echo "[*] 在 Dev Chroot 中安装开发工具链..."
-    chroot "$DEV_CHROOT" /bin/bash -c "
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get install -y --no-install-recommends \
-            build-essential git curl wget vim htop cmake pkg-config \
-            linux-headers-amd64 unzip gawk gpg \
-            python3 python3-pip python3-venv golang rustc cargo || true \
-
-        echo '[*] 正在创建软链接以适配目标内核版本: $KERNEL_VERSION'
-
-        INSTALLED_HEADER=\$(ls -d /usr/src/linux-headers-*-amd64 2>/dev/null | head -n 1)
-        INSTALLED_COMMON=\$(ls -d /usr/src/linux-headers-*-common 2>/dev/null | head -n 1)
-
-        if [ -n \"\$INSTALLED_HEADER\" ]; then
-            TARGET_HEADER_DIR=\"/usr/src/linux-headers-$KERNEL_VERSION\"
-            if [ ! -e \"\$TARGET_HEADER_DIR\" ]; then
-                ln -sfn \"\$INSTALLED_HEADER\" \"\$TARGET_HEADER_DIR\"
-                echo \"[+] 已创建头文件架构目录软链接: \$TARGET_HEADER_DIR -> \$INSTALLED_HEADER\"
-            fi
-        fi
-
-        if [ -n \"\$INSTALLED_COMMON\" ]; then
-            BASE_VER=\$(echo $KERNEL_VERSION | sed 's/-amd64//')
-            TARGET_COMMON_DIR=\"/usr/src/linux-headers-\$BASE_VER-common\"
-            if [ ! -e \"\$TARGET_COMMON_DIR\" ]; then
-                ln -sfn \"\$INSTALLED_COMMON\" \"\$TARGET_COMMON_DIR\"
-                echo \"[+] 已创建通用头文件目录软链接: \$TARGET_COMMON_DIR -> \$INSTALLED_COMMON\"
-            fi
-        fi
-
-        MODULE_DIR=\"/lib/modules/$KERNEL_VERSION\"
-        mkdir -p \"\$MODULE_DIR\"
-        if [ -d \"/usr/src/linux-headers-$KERNEL_VERSION\" ]; then
-            ln -sfn \"/usr/src/linux-headers-$KERNEL_VERSION\" \"\$MODULE_DIR/build\"
-            echo '[+] 已绑定 /lib/modules/$KERNEL_VERSION/build 软链接'
-        elif [ -n \"\$INSTALLED_HEADER\" ]; then
-            ln -sfn \"\$INSTALLED_HEADER\" \"\$MODULE_DIR/build\"
-            echo '[+] 已绑定 /lib/modules/$KERNEL_VERSION/build 软链接到实际目录'
-        fi
-
-        echo '[+] 软链接构建完成！'
-        apt-get clean
-    "
+    chroot "$DEV_CHROOT" /bin/bash -c '
+	    export DEBIAN_FRONTEND=noninteractive
+	    apt-get install -y --no-install-recommends \
+	        build-essential git curl wget vim htop cmake pkg-config \
+	        '"$HEADERS_PKG"' unzip gawk gpg \
+	        python3 python3-pip python3-venv golang rustc cargo || true
+	
+	    # 1. 动态检测当前内核或系统的头文件后缀（兼容 Debian 的 -amd64 与 Ubuntu 的 -generic）
+	    if echo "'"$KERNEL_VERSION"'" | grep -q "generic"; then
+	        HEADER_SUFFIX="generic"
+	    else
+	        HEADER_SUFFIX="amd64"
+	    fi
+	
+	    echo "[*] 正在创建软链接以适配目标内核版本: '"$KERNEL_VERSION"' (后缀: $HEADER_SUFFIX)"
+	
+	    INSTALLED_HEADER=$(ls -d /usr/src/linux-headers-*-$HEADER_SUFFIX 2>/dev/null | head -n 1)
+	    INSTALLED_COMMON=$(ls -d /usr/src/linux-headers-*-common 2>/dev/null | head -n 1)
+	
+	    if [ -n "$INSTALLED_HEADER" ]; then
+	        TARGET_HEADER_DIR="/usr/src/linux-headers-'"$KERNEL_VERSION"'"
+	        if [ ! -e "$TARGET_HEADER_DIR" ]; then
+	            ln -sfn "$INSTALLED_HEADER" "$TARGET_HEADER_DIR"
+	            echo "[+] 已创建头文件架构目录软链接: $TARGET_HEADER_DIR -> $INSTALLED_HEADER"
+	        fi
+	    fi
+	
+	    if [ -n "$INSTALLED_COMMON" ]; then
+	        BASE_VER=$(echo "'"$KERNEL_VERSION"'" | sed "s/-$HEADER_SUFFIX//")
+	        TARGET_COMMON_DIR="/usr/src/linux-headers-$BASE_VER-common"
+	        if [ ! -e "$TARGET_COMMON_DIR" ]; then
+	            ln -sfn "$INSTALLED_COMMON" "$TARGET_COMMON_DIR"
+	            echo "[+] 已创建通用头文件目录软链接: $TARGET_COMMON_DIR -> $INSTALLED_COMMON"
+	        fi
+	    fi
+	
+	    MODULE_DIR="/lib/modules/'"$KERNEL_VERSION"'"
+	    mkdir -p "$MODULE_DIR"
+	    if [ -d "/usr/src/linux-headers-'"$KERNEL_VERSION"'" ]; then
+	        ln -sfn "/usr/src/linux-headers-'"$KERNEL_VERSION"'" "$MODULE_DIR/build"
+	        echo "[+] 已绑定 /lib/modules/'"$KERNEL_VERSION"'/build 软链接"
+	    elif [ -n "$INSTALLED_HEADER" ]; then
+	        ln -sfn "$INSTALLED_HEADER" "$MODULE_DIR/build"
+	        echo "[+] 已绑定 /lib/modules/'"$KERNEL_VERSION"'/build 软链接到实际目录"
+	    fi
+	
+	    echo "[+] 软链接构建完成！"
+	    apt-get clean
+	'
     sleep 2
     umount_chroot "$DEV_CHROOT"
     #rm_stage_temps "$DEV_STAGE"
