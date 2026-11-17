@@ -126,8 +126,9 @@ step_base() {
 	
 	# 3. 写入 sources.list
 	cat <<EOF > "$BASE_CHROOT/etc/apt/sources.list"
-deb https://deb.debian.org/debian $DIST_NAME $COMPONENTS
-deb https://deb.debian.org/debian-security $DIST_NAME-security $COMPONENTS
+deb http://deb.debian.org/debian $DIST_NAME $COMPONENTS
+deb http://deb.debian.org/debian-security $DIST_NAME-security $COMPONENTS
+deb http://deb.debian.org/debian $DIST_NAME-updates $COMPONENTS
 EOF
 
     echo "[*] 在 Base 中安装内核、基础服务并创建用户 debian..."
