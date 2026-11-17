@@ -1,4 +1,4 @@
-name: Build Debian 12 Modular Live ISO
+name: Build Debian Modular Live ISO
 
 on:
   # 1. 允许手动触发，并可选择具体构建哪个步骤
@@ -100,7 +100,6 @@ jobs:
         with:
           files: |
             target/*.iso
-            target/iso/live/*.squashfs
           # body: "这是自动构建的 Debian 模块化 Live 系统。"
           # draft: false
           # prerelease: false
