@@ -5,6 +5,14 @@ if [ ! -d "$ISO_DIR/live" ];then
     exit 1
 fi
 
+VER=`sed 's/\\n \\l//g' /etc/issue`
+# 去掉前后空白字符
+VER="${VER#"${VER%%[![:space:]]*}"}"   # 去掉前导空格
+VER="${VER%"${VER##*[![:space:]]}"}"   # 去掉尾部空格
+if [ "$VER" == "" ]; then
+    VER="System"
+fi
+
 step_partition_install() {
     echo "[+] 步骤: 使用 GRUB 安全安装 Live 系统到指定磁盘/分区（非破坏性）..."
     if [ ! -d "$ISO_DIR" ]; then
@@ -71,12 +79,12 @@ EOF
     write_boot_menu() {
         local GRUB_CFGFILE="$MNT_DIR/boot/grub/grub.cfg"
 
-        echo "menuentry \"Modular Live System Persistence\" {" >> "$GRUB_CFGFILE"
+        echo "menuentry \"Modular Live $VER Persistence\" {" >> "$GRUB_CFGFILE"
         echo "    linux /boot/vmlinuz boot=live persistence persistence-label=ldata components splash" >> "$GRUB_CFGFILE"
         echo "    initrd /boot/initrd.img" >> "$GRUB_CFGFILE"
         echo "}" >> "$GRUB_CFGFILE"
 
-        echo "menuentry \"Modular Live System\" {" >> "$GRUB_CFGFILE"
+        echo "menuentry \"Modular Live $VER\" {" >> "$GRUB_CFGFILE"
         echo "    linux /boot/vmlinuz boot=live components splash" >> "$GRUB_CFGFILE"
         echo "    initrd /boot/initrd.img" >> "$GRUB_CFGFILE"
         echo "}" >> "$GRUB_CFGFILE"
