@@ -30,6 +30,7 @@ case "$TARGET_VERSION" in
         MIRROR_URL="http://archive.ubuntu.com/ubuntu/"
         SECURITY_URL="http://security.ubuntu.com/ubuntu/"
         COMPONENTS="main restricted universe multiverse"
+		KERNEL_PKG="linux-image-generic"
         ;;
         
     # Debian 默认及其他代号处理
@@ -38,6 +39,7 @@ case "$TARGET_VERSION" in
         MIRROR_URL="http://deb.debian.org/debian"
         SECURITY_URL="http://deb.debian.org/debian-security"
         COMPONENTS="main contrib non-free non-free-firmware"
+		KERNEL_PKG="linux-image-amd64"
         ;;
 esac
 
@@ -95,8 +97,8 @@ cp_initramfs() {
 
 step_prep() {
     echo "[+] Install basic packages..."
-    apt update
-    apt install -y debootstrap squashfs-tools initramfs-tools \
+    apt-get update
+    apt-get install -y debootstrap squashfs-tools initramfs-tools \
 	    isolinux dosfstools syslinux-utils xorriso rsync \
 	    grub-pc-bin grub-efi-amd64-bin
 }
@@ -129,9 +131,9 @@ EOF
     mount_chroot "$BASE_CHROOT"
     chroot "$BASE_CHROOT" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
-        apt update && \
-		apt upgrade -y && \
-        apt install -y linux-image-amd64 live-boot initramfs-tools \
+        apt-get update && \
+		apt-get upgrade -y && \
+        apt-get install -y $KERNEL_PKG live-boot initramfs-tools \
 			fuse3 ntfs-3g squashfs-tools \
 			systemd-sysv network-manager sudo && \
         echo 'debian' > /etc/hostname && \
@@ -139,7 +141,7 @@ EOF
         id debian &>/dev/null || useradd -m -s /bin/bash debian && \
         echo 'debian:toor' | chpasswd && \
         usermod -aG sudo,adm,dialout,cdrom,floppy,audio,dip,video,plugdev debian && \
-        apt clean
+        apt-get clean
     "
     patch_block_mount() {
         echo "[*] Patch base..."
@@ -199,7 +201,7 @@ step_dev() {
     echo "[*] 在 Dev Chroot 中安装开发工具链..."
     chroot "$DEV_CHROOT" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
-        apt install -y --no-install-recommends \
+        apt-get install -y --no-install-recommends \
             build-essential git curl wget vim htop cmake pkg-config \
             linux-headers-amd64 unzip gawk gpg \
             python3 python3-pip python3-venv golang rustc cargo || true \
@@ -237,7 +239,7 @@ step_dev() {
         fi
 
         echo '[+] 软链接构建完成！'
-        apt clean
+        apt-get clean
     "
     sleep 2
     umount_chroot "$DEV_CHROOT"
@@ -271,7 +273,7 @@ step_xorg() {
     echo "[*] 在 XORG Chroot 中安装 xorg 及相关软件..."
     chroot "$XORG_CHROOT" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
-        apt install -y --no-install-recommends \
+        apt-get install -y --no-install-recommends \
             lightdm xserver-xorg xserver-xorg-core \
             xinit x11-xserver-utils im-config \
             libnotify-bin desktop-base \
@@ -283,7 +285,7 @@ step_xorg() {
             pulseaudio pavucontrol \
             firefox-esr \
             gparted mesa-utils network-manager-gnome && \
-        apt clean
+        apt-get clean
     "
     # fonts-noto-cjk fonts-noto-cjk-extra
 
@@ -364,11 +366,11 @@ step_gui() {
     echo "[*] 在 GUI Chroot 中统一安装所选桌面及相关软件..."
     chroot "$multi_chroot" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
-        apt update && \
-        apt install -y --no-install-recommends \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
             $pkg_list \
             && \
-        apt clean
+        apt-get clean
     "
     sleep 2
     umount_chroot "$multi_chroot" || true
