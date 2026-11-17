@@ -30,9 +30,9 @@ jobs:
   build-iso:
     runs-on: ubuntu-latest
     timeout-minutes: 120 # 编译系统耗时较久，建议设置长一点的超时时间
-    #container:
-    #  image: debian:bookworm       # 或者使用你指定的镜像，如 ubuntu:latest
-    #  options: --privileged        # 开启特权模式，赋予容器类似宿主机的内核操作权限
+    container:
+      image: debian:bookworm       # 或者使用你指定的镜像，如 ubuntu:latest
+      options: --privileged        # 开启特权模式，赋予容器类似宿主机的内核操作权限
     env:
       # 将 GitHub Actions 的输入赋值给自定义环境变量
       GUI_DESKTOPS: ${{ inputs.gui_desktops }}
