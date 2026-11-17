@@ -96,7 +96,7 @@ step_base() {
     mkdir -p "$BASE_CHROOT" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/isolinux"
 
     if [ ! -f "$BASE_CHROOT/bin/bash" ]; then
-        debootstrap --arch=amd64 "$SET_VERSION" "$BASE_CHROOT" http://deb.debian.org/debian
+        debootstrap --variant=minbase --arch=amd64 "$SET_VERSION" "$BASE_CHROOT" http://deb.debian.org/debian
     fi
 
 	# 1. 兼容数字版本号到 Debian 官方代号的映射
@@ -136,8 +136,7 @@ EOF
     chroot "$BASE_CHROOT" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
         apt update && \
-		apt-get dist-upgrade -y --fix-missing && \
-        apt install --fix-missing -y linux-image-amd64 live-boot initramfs-tools \
+        apt install -y linux-image-amd64 live-boot initramfs-tools \
 			fuse3 ntfs-3g squashfs-tools \
 			systemd-sysv network-manager sudo && \
         echo 'debian' > /etc/hostname && \
