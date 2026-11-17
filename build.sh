@@ -341,7 +341,7 @@ step_gui() {
     for desktop_type in "$@"; do
         case "$desktop_type" in
             mate)
-                pkg_list="$pkg_list mate-desktop-environment-core eom mate-applets mate-indicator-applet mate-applet-brisk-menu"
+                pkg_list="$pkg_list mate-desktop-environment-core eom mate-applets mate-indicator-applet mate-applet-brisk-menu ayatana-indicator-application"
                 ;;
             xfce)
                 pkg_list="$pkg_list xfce4 xfce4-goodies"
