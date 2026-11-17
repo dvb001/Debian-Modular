@@ -125,10 +125,11 @@ EOF
         echo "[*] Patch base..."
         cp -R ./data/patch/* "$BASE_CHROOT/"
         chroot "$BASE_CHROOT" /bin/bash -c "
+			KERNEL_VERSION=$(ls "$BASE_CHROOT/lib/modules" | head -n 1)
 			if [ -f /usr/bin/update-initramfs.orig.initramfs-tools ]; then
-            	update-initramfs.orig.initramfs-tools -u -k `uname -r`
+            	update-initramfs.orig.initramfs-tools -u -k $KERNEL_VERSION
 			else
-				update-initramfs -u -k `uname -r`
+				update-initramfs -u -k $KERNEL_VERSION
 			fi
             systemctl enable fix-dpkg-status.service
         "
