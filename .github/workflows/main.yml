@@ -10,9 +10,9 @@ on:
         default: 'mate xfce'
         type: string
       target_version:
-        description: '输入版本名（bookwarm/trixie/jammy等）'
+        description: '输入版本名（bookworm/trixie/jammy等）'
         required: true
-        default: 'bookwarm'
+        default: 'bookworm'
         type: string
 
   # 2. 只有推送形如 v1.0.0 的标签时才自动触发
