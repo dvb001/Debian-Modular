@@ -32,6 +32,7 @@ case "$TARGET_VERSION" in
         COMPONENTS="main restricted universe multiverse"
 		KERNEL_PKG="linux-image-generic"
 		HEADERS_PKG="linux-headers-generic"
+		XORG_PKG="firefox pluma"
         ;;
         
     # Debian 默认及其他代号处理
@@ -42,6 +43,7 @@ case "$TARGET_VERSION" in
         COMPONENTS="main contrib non-free non-free-firmware"
 		KERNEL_PKG="linux-image-amd64"
 		HEADERS_PKG="linux-headers-amd64"
+		XORG_PKG="firefox-esr pluma pluma-plugins"
         ;;
 esac
 
@@ -288,11 +290,11 @@ step_xorg() {
             libnotify-bin desktop-base \
             fcitx5 fcitx5-config-qt fcitx5-chinese-addons \
             fcitx5-frontend-qt5 fcitx-frontend-gtk3 \
-            pluma pluma-plugins engrampa gnome-terminal \
+            engrampa gnome-terminal \
             font-viewer libwebkit2gtk-4.1-0 \
             gvfs-backends gvfs-fuse caja \
             pulseaudio pavucontrol \
-            firefox-esr \
+            $XORG_PKG \
             gparted mesa-utils network-manager-gnome && \
         apt-get clean
     "
