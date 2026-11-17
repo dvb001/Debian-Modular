@@ -301,6 +301,22 @@ step_xorg() {
     "
     # fonts-noto-cjk fonts-noto-cjk-extra
 
+	# 修复 ubuntu 网络连接
+	if [ "$TARGET_OS" == "ubuntu" ]; then
+		chroot "$XORG_CHROOT" /bin/bash -c '
+		    # 确保 NetworkManager 配置目录存在
+		    mkdir -p /etc/NetworkManager/conf.d
+		
+		    # 写入全局接管配置，解决网卡显示 unmanaged 的问题
+		    cat << '\''EOF'\'' > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
+[keyfile]
+unmanaged-devices=none
+EOF
+		    # 启用 NetworkManager 服务（确保开机自启）
+		    systemctl enable NetworkManager
+		'
+	fi
+
     sleep 2
     umount "$XORG_CHROOT" || true
     
@@ -325,7 +341,7 @@ step_gui() {
     for desktop_type in "$@"; do
         case "$desktop_type" in
             mate)
-                pkg_list="$pkg_list mate-desktop-environment-core eom"
+                pkg_list="$pkg_list mate-desktop-environment-core eom mate-applets"
                 ;;
             xfce)
                 pkg_list="$pkg_list xfce4 xfce4-goodies"
