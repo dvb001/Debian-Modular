@@ -11,7 +11,7 @@
 # 默认桌面
 SET_DESKTOPS="${GUI_DESKTOPS:-mate xfce}"
 # 默认版本
-SET_VERSION="${TARGET_VERSION:-bookworm}"
+TARGET_VERSION="$(echo "${TARGET_VERSION:-bookworm}" | tr '[:upper:]' '[:lower:]')"
 # overlay 挂载命令
 MOUNT_OVERLAY_CMD="fuse-overlayfs"
 
@@ -21,6 +21,25 @@ if [ "$EUID" -ne 0 ]; then
   echo "[-] 请使用 sudo 或 root 权限运行此脚本。"
   exit 1
 fi
+
+# 2. 根据版本名判断是 Ubuntu 还是 Debian
+case "$TARGET_VERSION" in
+    # Ubuntu 常见代号列举（可根据需要增减）
+    bionic|focal|jammy|mantic|noble|oracular)
+        TARGET_OS="ubuntu"
+        MIRROR_URL="http://archive.ubuntu.com/ubuntu/"
+        SECURITY_URL="http://security.ubuntu.com/ubuntu/"
+        COMPONENTS="main restricted universe multiverse"
+        ;;
+        
+    # Debian 默认及其他代号处理
+    *)
+        TARGET_OS="debian"
+        MIRROR_URL="http://deb.debian.org/debian"
+        SECURITY_URL="http://deb.debian.org/debian-security"
+        COMPONENTS="main contrib non-free non-free-firmware"
+        ;;
+esac
 
 WORK_DIR="$PWD/target"
 BASE_ROOT="$WORK_DIR/001-base"
@@ -46,7 +65,7 @@ GUI_WORK="$GUI_ROOT/work"
 OTHER_WORK="$TOOLS_ROOT/work"
 
 ISO_DIR="$WORK_DIR/iso"
-OUTPUT_ISO="$WORK_DIR/debian-$SET_VERSION-modular.iso"
+OUTPUT_ISO="$WORK_DIR/$TARGET_OS-$TARGET_VERSION-modular.iso"
 
 mount_chroot() {
     mount -t proc proc "$1/proc"
@@ -89,20 +108,21 @@ rm_stage_temps() {
 }
 
 step_base() {
-	echo "目标版本：$SET_VERSION"
+	echo "目标版本：$TARGET_VERSION"
 	sleep 1
     echo "[+] 步骤 1/5: 构建基础系统 (001-base)..."
     
     mkdir -p "$BASE_CHROOT" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/isolinux"
 
     if [ ! -f "$BASE_CHROOT/bin/bash" ]; then
-        debootstrap --arch=amd64 "$SET_VERSION" "$BASE_CHROOT" http://deb.debian.org/debian
+        debootstrap --arch=amd64 "$TARGET_VERSION" "$BASE_CHROOT" "$MIRROR_URL"
     fi
 	COMPONENTS="main contrib non-free non-free-firmware"	
 	# 3. 写入 sources.list
 	cat <<EOF > "$BASE_CHROOT/etc/apt/sources.list"
-deb http://deb.debian.org/debian $SET_VERSION $COMPONENTS
-deb http://deb.debian.org/debian-security $SET_VERSION-security $COMPONENTS
+deb $MIRROR_URL $TARGET_VERSION $COMPONENTS
+deb $MIRROR_URL $TARGET_VERSION-updates $COMPONENTS
+deb $SECURITY_URL $SEC_SUITE $COMPONENTS
 EOF
 
     echo "[*] 在 Base 中安装内核、基础服务并创建用户 debian..."
@@ -111,6 +131,7 @@ EOF
     chroot "$BASE_CHROOT" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
         apt update && \
+		apt upgrade && \
         apt install -y linux-image-amd64 live-boot initramfs-tools \
 			fuse3 ntfs-3g squashfs-tools \
 			systemd-sysv network-manager sudo && \
@@ -386,13 +407,13 @@ make_uefi_boot() {
 set timeout=50
 set default=0
 
-menuentry "Start Debian 12 Modular (UEFI)" {
+menuentry "Start $TARGET_OS $TARGET_VERSION Modular (UEFI)" {
     search --no-floppy --set=root --file /boot/vmlinuz
     linux /boot/vmlinuz boot=live components splash
     initrd /boot/initrd.img
 }
 
-menuentry "Start Debian 12 Modular (persistence) (UEFI)" {
+menuentry "Start $TARGET_OS $TARGET_VERSION Modular (persistence) (UEFI)" {
     search --no-floppy --set=root --file /boot/vmlinuz
     linux /boot/vmlinuz boot=live persistence persistence-label=ldata components splash
     initrd /boot/initrd.img
@@ -409,12 +430,12 @@ UI menu.c32
 PROMPT 0
 TIMEOUT 50
 
-LABEL debian-modular
-    MENU LABEL Start Debian 12 Modular
+LABEL system-modular
+    MENU LABEL Start $TARGET_OS $TARGET_VERSION Modular
     KERNEL /boot/vmlinuz
     APPEND initrd=/boot/initrd.img boot=live components splash
-LABEL debian-modular-with-persistence
-    MENU LABEL Start Debian 12 Modular (persistence) 
+LABEL system-modular-with-persistence
+    MENU LABEL Start $TARGET_OS $TARGET_VERSION Modular (persistence) 
     KERNEL /boot/vmlinuz
     APPEND initrd=/boot/initrd.img boot=live persistence persistence-label=ldata components splash
 EOF
