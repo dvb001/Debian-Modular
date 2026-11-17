@@ -71,12 +71,12 @@ EOF
     write_boot_menu() {
         local GRUB_CFGFILE="$MNT_DIR/boot/grub/grub.cfg"
 
-        echo "menuentry \"Debian 12 Modular Live Persistence\" {" >> "$GRUB_CFGFILE"
+        echo "menuentry \"Modular Live System Persistence\" {" >> "$GRUB_CFGFILE"
         echo "    linux /boot/vmlinuz boot=live persistence persistence-label=ldata components splash" >> "$GRUB_CFGFILE"
         echo "    initrd /boot/initrd.img" >> "$GRUB_CFGFILE"
         echo "}" >> "$GRUB_CFGFILE"
 
-        echo "menuentry \"Debian 12 Modular Live\" {" >> "$GRUB_CFGFILE"
+        echo "menuentry \"Modular Live System\" {" >> "$GRUB_CFGFILE"
         echo "    linux /boot/vmlinuz boot=live components splash" >> "$GRUB_CFGFILE"
         echo "    initrd /boot/initrd.img" >> "$GRUB_CFGFILE"
         echo "}" >> "$GRUB_CFGFILE"

@@ -1,34 +1,45 @@
-模块化 Debian 制作脚本
+## Modular Debian Build Script
 
-base + devtools + xorg + desktop(mate|kde|xfce|lxqt|lxde|cinamma)
+Base + devtools + xorg + desktop (mate|kde|xfce|lxqt|lxde|cinnamon)
 
-### 生成步骤
+### Build Steps
+
 ```bash
-# 安装必须的工具包
+sudo ./build.sh all
+```
+Or
+```bash
+# Install required tool packages
 sudo ./build.sh prep
-# 生成 base 模块
+# Generate base module
 sudo ./build.sh base
-# 生成开发工具模块
+# Generate developer tools module
 sudo ./build.sh dev
-# 生成桌面基础模块
+# Generate desktop base module
 sudo ./build.sh xorg
-# 生成桌面
+# Generate desktop
 sudo ./build.sh gui
-# 制作 iso
+# Create ISO
 sudo ./build.sh boot
 ```
-### 生成结果
-最终结果：生成带有 uefi 和传统启动方式的ISO文件
-    target/debian-12-modular.iso
+### Build Result (Defaults to Debian Bookworm)
+Final output: An ISO file supporting both UEFI and legacy boot methods.
+    target/debian-bookworm-modular.iso
 
-### 安装到硬盘
-光盘ISO启动后，可以执行 sudo ./install.sh 安装到硬盘（需要提前分区）
+### Build Other OS Versions
+Pass the TARGET_VERSION environment variable to build.sh:
+```bash
+sudo TARGET_VERSION=jammy ./build.sh all
+```
+The default desktops are XFCE and MATE. For other desktops, use the GUI_DESKTOPS environment variable:
+```bash
+sudo TARGET_VERSION=jammy GUI_DESKTOPS="mate lxgt" ./build.sh all
+```
+### Installation to Hard Drive
+After booting from the Live ISO, you can run sudo ./install.sh to install it to your hard drive (requires pre-partitioning).
 
-### 启动截图
-![image](data/screenshot.png)
-
-### 系统数据保存
-persistence 默认保存在 Label 为 ldata 的硬盘分区。
+### System Data Persistence
+Persistence data is stored by default on the hard drive partition labeled ldata.
 
 persistence.conf
 ```conf
