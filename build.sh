@@ -98,36 +98,11 @@ step_base() {
     if [ ! -f "$BASE_CHROOT/bin/bash" ]; then
         debootstrap --arch=amd64 "$SET_VERSION" "$BASE_CHROOT" http://deb.debian.org/debian
     fi
-
-	# 1. 兼容数字版本号到 Debian 官方代号的映射
-	case "$SET_VERSION" in
-	    11)
-	        DIST_NAME="bullseye"
-	        ;;
-	    12)
-	        DIST_NAME="bookworm"
-	        ;;
-	    13 | trixie)
-	        DIST_NAME="trixie"  # Debian 13 的代号是 trixie
-	        ;;
-	    *)
-	        DIST_NAME="${SET_VERSION:-bookworm}"
-	        ;;
-	esac
-	
-	# 2. 根据版本决定是否包含 non-free-firmware 组件（Debian 11 没有该独立分类）
-	if [ "$DIST_NAME" = "bullseye" ]; then
-	    COMPONENTS="main contrib non-free"
-	else
-	    COMPONENTS="main contrib non-free non-free-firmware"
-	fi
-	
-	echo "[*] 正在配置 Debian 源码源：版本 -> $DIST_NAME ($SET_VERSION)"
-	
+	COMPONENTS="main contrib non-free non-free-firmware"	
 	# 3. 写入 sources.list
 	cat <<EOF > "$BASE_CHROOT/etc/apt/sources.list"
-deb http://deb.debian.org/debian $DIST_NAME $COMPONENTS
-deb http://deb.debian.org/debian-security $DIST_NAME-security $COMPONENTS
+deb http://deb.debian.org/debian $SET_VERSION $COMPONENTS
+deb http://deb.debian.org/debian-security $SET_VERSION-security $COMPONENTS
 EOF
 
     echo "[*] 在 Base 中安装内核、基础服务并创建用户 debian..."
