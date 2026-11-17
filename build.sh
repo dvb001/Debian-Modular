@@ -130,7 +130,7 @@ EOF
     chroot "$BASE_CHROOT" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
         apt update && \
-		apt upgrade && \
+		apt upgrade -y && \
         apt install -y linux-image-amd64 live-boot initramfs-tools \
 			fuse3 ntfs-3g squashfs-tools \
 			systemd-sysv network-manager sudo && \
