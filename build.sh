@@ -126,6 +126,9 @@ EOF
         cp -R ./data/patch/* "$BASE_CHROOT/"
         chroot "$BASE_CHROOT" /bin/bash -c "
 			KERNEL_VERSION=$(ls "$BASE_CHROOT/lib/modules" | head -n 1)
+			if [ "$KERNEL_VERSION" == "" ]; then
+				KERNEL_VERSION="all"
+			fi
 			if [ -f /usr/bin/update-initramfs.orig.initramfs-tools ]; then
             	update-initramfs.orig.initramfs-tools -u -k $KERNEL_VERSION
 			else
