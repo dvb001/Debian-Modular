@@ -11,7 +11,7 @@
 # 默认桌面
 SET_DESKTOPS="${GUI_DESKTOPS:-mate xfce}"
 # 默认版本
-SET_VERSION="${DEBIAN_VERSION:-bookworm}"
+SET_VERSION="${TARGET_VERSION:-bookworm}"
 # overlay 挂载命令
 MOUNT_OVERLAY_CMD="fuse-overlayfs"
 
