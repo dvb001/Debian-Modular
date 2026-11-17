@@ -151,7 +151,11 @@ EOF
         echo "[*] Patch base..."
         cp -R ./data/patch/* "$BASE_CHROOT/"
         chroot "$BASE_CHROOT" /bin/bash -c "
-            update-initramfs.orig.initramfs-tools -u -k `uname -r`
+			if [ -f /usr/bin/update-initramfs.orig.initramfs-tools ]; then
+            	update-initramfs.orig.initramfs-tools -u -k `uname -r`
+			else
+				update-initramfs -u -k `uname -r`
+			fi
             systemctl enable fix-dpkg-status.service
         "
     }
