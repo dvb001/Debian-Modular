@@ -9,7 +9,7 @@ on:
         required: true
         default: 'mate xfce'
         type: string
-      debian_version:
+      target_version:
         description: '输入版本名（bookwarm/trixie/jammy等）'
         required: true
         default: 'bookwarm'
@@ -36,7 +36,7 @@ jobs:
     env:
       # 将 GitHub Actions 的输入赋值给自定义环境变量
       GUI_DESKTOPS: ${{ inputs.gui_desktops }}
-      DEBIAN_VERSION: ${{ inputs.debian_version }} # 如果你还有其他输入
+      TARGET_VERSION: ${{ inputs.target_version }} # 如果你还有其他输入
           
     steps:
       # 步骤 1：检出仓库代码
@@ -58,23 +58,23 @@ jobs:
           
       - name: build base
         run: |
-          sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh base
+          sudo TARGET_VERSION="$TARGET_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh base
           
       - name: build devtools
         run: |
-          echo 'y' | sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh dev
+          echo 'y' | sudo TARGET_VERSION="$TARGET_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh dev
 
       - name: build xorg
         run: |
-          echo 'y' | sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh xorg
+          echo 'y' | sudo TARGET_VERSION="$TARGET_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh xorg
 
       - name: build gui
         run: |
-          echo 'y' | sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh gui
+          echo 'y' | sudo TARGET_VERSION="$TARGET_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh gui
 
       - name: build iso
         run: |
-          sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh boot
+          sudo TARGET_VERSION="$TARGET_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh boot
 
       # 步骤 4：检查并整理输出产物
       - name: Prepare Artifacts
@@ -89,7 +89,7 @@ jobs:
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: debian-$DEBIAN_VERSION-modular-iso
+          name: debian-$TARGET_VERSION-modular-iso
           path: iso_output/
           retention-days: 7
 
