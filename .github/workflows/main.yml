@@ -4,19 +4,16 @@ on:
   # 1. 允许手动触发，并可选择具体构建哪个步骤
   workflow_dispatch:
     inputs:
-      build_target:
-        description: '选择构建阶段'
+      gui_desktops:
+        description: '选择桌面组合（空格分隔）'
         required: true
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - prep
-          - base
-          - dev
-          - xorg
-          - gui
-          - boot
+        default: 'mate xfce'
+        type: string
+      debian_version:
+        description: '选择Debian版本'
+        required: true
+        default: 'bookwarm'
+        type: string
 
   # 2. 只有推送形如 v1.0.0 的标签时才自动触发
   push:
@@ -36,7 +33,11 @@ jobs:
     container:
       image: debian:bookworm       # 或者使用你指定的镜像，如 ubuntu:latest
       options: --privileged        # 开启特权模式，赋予容器类似宿主机的内核操作权限
-      
+    env:
+      # 将 GitHub Actions 的输入赋值给自定义环境变量
+      GUI_DESKTOPS: ${{ inputs.gui_desktops }}
+      DEBIAN_VERSION: ${{ inputs.debian_version }} # 如果你还有其他输入
+          
     steps:
       # 步骤 1：检出仓库代码
       - name: Checkout code
@@ -80,15 +81,15 @@ jobs:
         run: |
           mkdir -p iso_output
           # 将生成的 ISO 镜像复制到统一的产物目录
-          if [ -f "target/debian-12-modular.iso" ]; then
-            cp -v target/debian-12-modular.iso iso_output/
+          if [ -f "target/debian-*-modular.iso" ]; then
+            cp -v target/debian-*-modular.iso iso_output/
           fi
 
       # 步骤 5：上传构建完成的 ISO 镜像及模块到 GitHub
       - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: debian-12-modular-iso
+          name: debian-$DEBIAN_VERSION-modular-iso
           path: iso_output/
           retention-days: 7
 
@@ -98,7 +99,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v') # 通常通过打标签（如 v1.0.0）来触发 Release
         with:
           files: |
-            target/debian-12-modular.iso
+            target/*.iso
             target/iso/live/*.squashfs
           # body: "这是自动构建的 Debian 模块化 Live 系统。"
           # draft: false
