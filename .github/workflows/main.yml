@@ -1,4 +1,4 @@
-name: Build Debian Modular Live ISO
+name: Build Modular Live ISO
 
 on:
   # 1. 允许手动触发，并可选择具体构建哪个步骤
