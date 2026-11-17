@@ -10,7 +10,7 @@ on:
         default: 'mate xfce'
         type: string
       debian_version:
-        description: '选择Debian版本'
+        description: '输入版本名（bookwarm/trixie/jammy等）'
         required: true
         default: 'bookwarm'
         type: string
