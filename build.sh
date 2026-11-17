@@ -121,7 +121,7 @@ step_base() {
 	cat <<EOF > "$BASE_CHROOT/etc/apt/sources.list"
 deb $MIRROR_URL $TARGET_VERSION $COMPONENTS
 deb $MIRROR_URL $TARGET_VERSION-updates $COMPONENTS
-deb $SECURITY_URL $SEC_SUITE $COMPONENTS
+deb $SECURITY_URL $TARGET_VERSION-security $COMPONENTS
 EOF
 
     echo "[*] 在 Base 中安装内核、基础服务并创建用户 debian..."
