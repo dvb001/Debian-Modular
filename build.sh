@@ -117,7 +117,6 @@ step_base() {
     if [ ! -f "$BASE_CHROOT/bin/bash" ]; then
         debootstrap --arch=amd64 "$TARGET_VERSION" "$BASE_CHROOT" "$MIRROR_URL"
     fi
-	COMPONENTS="main contrib non-free non-free-firmware"	
 	# 3. 写入 sources.list
 	cat <<EOF > "$BASE_CHROOT/etc/apt/sources.list"
 deb $MIRROR_URL $TARGET_VERSION $COMPONENTS
