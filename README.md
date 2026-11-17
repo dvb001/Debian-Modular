@@ -1,4 +1,4 @@
-## Modular Debian Build Script
+## Modular Debian/Ubuntu Build Script
 
 Base + devtools + xorg + desktop (mate|kde|xfce|lxqt|lxde|cinnamon)
 
@@ -29,11 +29,11 @@ Final output: An ISO file supporting both UEFI and legacy boot methods.
 ### Build Other OS Versions
 Pass the TARGET_VERSION environment variable to build.sh:
 ```bash
-sudo TARGET_VERSION=jammy ./build.sh all
+sudo TARGET_VERSION=bookworm ./build.sh all
 ```
 The default desktops are XFCE and MATE. For other desktops, use the GUI_DESKTOPS environment variable:
 ```bash
-sudo TARGET_VERSION=jammy GUI_DESKTOPS="mate lxgt" ./build.sh all
+sudo TARGET_VERSION=bookworm GUI_DESKTOPS="mate xfce" ./build.sh all
 ```
 ### Installation to Hard Drive
 After booting from the Live ISO, you can run sudo ./install.sh to install it to your hard drive (requires pre-partitioning).
