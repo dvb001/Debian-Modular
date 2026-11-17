@@ -58,23 +58,23 @@ jobs:
           
       - name: build base
         run: |
-          sudo ./build.sh base
+          sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh base
           
       - name: build devtools
         run: |
-          echo 'y' | sudo ./build.sh dev
+          echo 'y' | sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh dev
 
       - name: build xorg
         run: |
-          echo 'y' | sudo ./build.sh xorg
+          echo 'y' | sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh xorg
 
       - name: build gui
         run: |
-          echo 'y' | sudo ./build.sh gui
+          echo 'y' | sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh gui
 
       - name: build iso
         run: |
-          sudo ./build.sh boot
+          sudo DEBIAN_VERSION="$DEBIAN_VERSION" GUI_DESKTOPS="$GUI_DESKTOPS" ./build.sh boot
 
       # 步骤 4：检查并整理输出产物
       - name: Prepare Artifacts
