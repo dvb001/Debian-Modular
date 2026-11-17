@@ -125,21 +125,16 @@ EOF
         echo "[*] Patch base..."
         cp -R ./data/patch/* "$BASE_CHROOT/"
         chroot "$BASE_CHROOT" /bin/bash -c "
-			# 1. 稳妥获取内核版本，并强制过滤掉任何空白字符
-			KERNEL_VERSION=$(ls "$BASE_CHROOT/lib/modules" 2>/dev/null | head -n 1 | tr -d '[:space:]')
-			
-			# 2. 如果为空，给默认值 "all"
+			KERNEL_VERSION=$(ls \"$BASE_CHROOT/lib/modules\" 2>/dev/null | head -n 1 | tr -d '[:space:]')
 			if [ -z "$KERNEL_VERSION" ]; then
-			    KERNEL_VERSION="all"
-			fi
-			
-			echo "[*] 检测到的目标内核版本: '$KERNEL_VERSION'"
-			
+			    KERNEL_VERSION=\"all\"
+			fi	
+			echo \"[*] 检测到的目标内核版本: $KERNEL_VERSION\"		
 			# 3. 必须在 chroot 环境中执行，并用双引号包裹变量以防被 shell 拆解
-			if [ -f "$BASE_CHROOT/usr/bin/update-initramfs.orig.initramfs-tools" ]; then
-			    chroot "$BASE_CHROOT" update-initramfs.orig.initramfs-tools -u -k "$KERNEL_VERSION"
+			if [ -f '/usr/bin/update-initramfs.orig.initramfs-tools' ]; then
+			    update-initramfs.orig.initramfs-tools -u -k $KERNEL_VERSION
 			else
-			    chroot "$BASE_CHROOT" update-initramfs -u -k "$KERNEL_VERSION"
+			    update-initramfs -u -k $KERNEL_VERSION
 			fi
             systemctl enable fix-dpkg-status.service
         "
