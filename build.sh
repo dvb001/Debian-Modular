@@ -285,7 +285,8 @@ step_xorg() {
     chroot "$XORG_CHROOT" /bin/bash -c "
         export DEBIAN_FRONTEND=noninteractive
         apt-get install -y --no-install-recommends \
-            lightdm xserver-xorg xserver-xorg-core \
+            lightdm lightdm-gtk-greeter \
+            xserver-xorg xserver-xorg-core \
             xinit x11-xserver-utils im-config \
             libnotify-bin desktop-base \
             fcitx5 fcitx5-config-qt fcitx5-chinese-addons \
