@@ -96,7 +96,7 @@ step_base() {
     mkdir -p "$BASE_CHROOT" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/isolinux"
 
     if [ ! -f "$BASE_CHROOT/bin/bash" ]; then
-        debootstrap --arch=amd64 "$SET_VERSION" "$BASE_CHROOT" https://mirrors.tuna.tsinghua.edu.cn/debian/
+        debootstrap --arch=amd64 "$SET_VERSION" "$BASE_CHROOT" http://deb.debian.org/
     fi
 
 	# 1. 兼容数字版本号到 Debian 官方代号的映射
@@ -126,8 +126,8 @@ step_base() {
 	
 	# 3. 写入 sources.list
 	cat <<EOF > "$BASE_CHROOT/etc/apt/sources.list"
-deb http://mirrors.tuna.tsinghua.edu.cn/debian $DIST_NAME $COMPONENTS
-deb http://mirrors.tuna.tsinghua.edu.cn/debian-security $DIST_NAME-security $COMPONENTS
+deb https://deb.debian.org/debian $DIST_NAME $COMPONENTS
+deb https://deb.debian.org/debian-security $DIST_NAME-security $COMPONENTS
 EOF
 
     echo "[*] 在 Base 中安装内核、基础服务并创建用户 debian..."
