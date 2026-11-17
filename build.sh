@@ -96,7 +96,7 @@ step_base() {
     mkdir -p "$BASE_CHROOT" "$ISO_DIR/live" "$ISO_DIR/boot" "$ISO_DIR/isolinux"
 
     if [ ! -f "$BASE_CHROOT/bin/bash" ]; then
-        debootstrap --variant=minbase --arch=amd64 "$SET_VERSION" "$BASE_CHROOT" http://deb.debian.org/debian
+        debootstrap --include=systemd,udev,libc6 --arch=amd64 "$SET_VERSION" "$BASE_CHROOT" http://deb.debian.org/debian
     fi
 
 	# 1. 兼容数字版本号到 Debian 官方代号的映射
