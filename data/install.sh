@@ -5,7 +5,7 @@ if [ ! -d "$ISO_DIR/live" ];then
     exit 1
 fi
 
-VER=`sed 's/\\n \\l//g' /etc/issue`
+VER=`sed 's/[\\n|\\l]//g' /etc/issue`
 # 去掉前后空白字符
 VER="${VER#"${VER%%[![:space:]]*}"}"   # 去掉前导空格
 VER="${VER%"${VER##*[![:space:]]}"}"   # 去掉尾部空格
@@ -14,21 +14,21 @@ if [ "$VER" == "" ]; then
 fi
 
 step_partition_install() {
-    echo "[+] 步骤: 使用 GRUB 安全安装 Live 系统到指定磁盘/分区（非破坏性）..."
+    echo "[+] Steps: Use GRUB to safely install a live system onto a specified disk/partition (non-destructive)..."
     if [ ! -d "$ISO_DIR" ]; then
-        echo "[-] 错误: 未找到 ISO 构建目录: $ISO_DIR，请先执行打包！"
+        echo "[-] Error: ISO build directory not found: $ISO_DIR. Please run the packaging process first!"
         exit 1
     fi
 
-    echo "[*] 当前系统中的磁盘和分区列表如下："
+    echo "[*] The list of disks and partitions currently in the system is as follows:"
     lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,LABEL
 
     echo ""
-    read -p "请输入目标分区名称（例如 sdb1 或 sdc1）: " TARGET_PART
+    read -p "Please enter the target partition name (e.g., sdb1 or sdc1):" TARGET_PART
     TARGET_PATH="/dev/$TARGET_PART"
 
     if [ ! -b "$TARGET_PATH" ]; then
-        echo "[-] 错误: 分区 $TARGET_PATH 不存在！"
+        echo "[-] Error: Partition $TARGET_PATH does not exist!"
         exit 1
     fi
 
@@ -36,13 +36,13 @@ step_partition_install() {
     TARGET_DISK="/dev/$(echo $TARGET_PART | sed 's/[0-9]*//g')"
 
     echo "=================================================="
-    echo " 警告：即将向分区 $TARGET_PATH 复制文件，"
-    echo " 并将 GRUB 引导写入整盘 $TARGET_DISK 的 MBR！"
+    echo " Warning: You are about to copy files to partition $TARGET_PATH."
+    echo " And write the GRUB bootloader to the MBR of the entire disk $TARGET_DISK!"
     echo "=================================================="
-    read -p "确认要继续吗？请输入大写的 YES 继续: " CONFIRM
+    read -p "Are you sure you want to continue? Please enter YES in uppercase to proceed: " CONFIRM
 
     if [ "$CONFIRM" != "YES" ]; then
-        echo "[*] 操作已取消。"
+        echo "[*] Operation cancelled."
         exit 0
     fi
 
@@ -52,16 +52,16 @@ step_partition_install() {
     MNT_DIR="/mnt/debian-target-part"
     mkdir -p "$MNT_DIR"
 
-    echo "[*] 正在挂载目标分区..."
+    echo "[*] Mounting target partition..."
     umount "$TARGET_PATH" 2>/dev/null || true
     mount -o rw "$TARGET_PATH" "$MNT_DIR"
 
-    echo "[*] 正在将 Live 系统文件复制到分区中..."
+    echo "[*] Copying Live system files to the partition..."
     mkdir -p "$MNT_DIR/live" "$MNT_DIR/boot"
     rsync -aHAX --info=progress2 "$ISO_DIR/live/" "$MNT_DIR/live"
     rsync -aHAX --info=progress2 "$ISO_DIR/boot/" "$MNT_DIR/boot"
 
-    echo "[*] 正在安装并配置 GRUB 引导..."
+    echo "[*] Installing and configuring the GRUB bootloader..."
     # 创建 grub 目录结构
     mkdir -p "$MNT_DIR/boot/grub"
 
@@ -92,10 +92,10 @@ EOF
 
     write_boot_menu
 
-    echo "[*] 正在同步数据并卸载..."
+    echo "[*] Synchronizing data and uninstalling..."
     sync
     umount "$MNT_DIR"
-    echo "[+] 安装成功！GRUB 已经通过 grub-install 成功写入 $TARGET_DISK，启动菜单配置完毕。"
+    echo "[+] Installation successful! GRUB has been successfully written to $TARGET_DISK via `grub-install`, and the boot menu has been configured."
 }
 
 step_partition_install
