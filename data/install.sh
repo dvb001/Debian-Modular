@@ -5,10 +5,7 @@ if [ ! -d "$ISO_DIR/live" ];then
     exit 1
 fi
 
-VER=`sed 's/[\\n|\\l]//g' /etc/issue`
-# 去掉前后空白字符
-VER="${VER#"${VER%%[![:space:]]*}"}"   # 去掉前导空格
-VER="${VER%"${VER##*[![:space:]]}"}"   # 去掉尾部空格
+VER=$(sed 's/\\n \\l//g' /etc/issue | head -n 1 | xargs)
 if [ "$VER" == "" ]; then
     VER="System"
 fi
